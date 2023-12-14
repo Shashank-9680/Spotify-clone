@@ -1,13 +1,35 @@
 import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import Login from "./componenets/Login";
 import SignUp from "./componenets/SignUp";
 import Home from "./componenets/Home";
-const router = createBrowserRouter([
+import { Cookies, useCookies } from "react-cookie";
+import LoggedInHome from "./componenets/LoggedInHome";
+import UploadSong from "./componenets/UploadSong";
+const router1 = createBrowserRouter([
   {
     path: "/",
     element: <div>Shashank</div>,
   },
+
+  {
+    path: "/loggedinhome",
+    element: <LoggedInHome></LoggedInHome>,
+  },
+  {
+    path: "/uploadsong",
+    element: <UploadSong></UploadSong>,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/loggedinhome"></Navigate>,
+  },
+]);
+const router2 = createBrowserRouter([
   {
     path: "/login",
     element: <Login></Login>,
@@ -20,11 +42,20 @@ const router = createBrowserRouter([
     path: "/home",
     element: <Home></Home>,
   },
+  {
+    path: "*",
+    element: <Navigate to="/login"></Navigate>,
+  },
 ]);
 function App() {
+  const [cookie, setCookie] = useCookies(["token"]);
   return (
     <div className="w-screen h-screen font-poppins">
-      <RouterProvider router={router} />
+      {cookie.token ? (
+        <RouterProvider router={router1} />
+      ) : (
+        <RouterProvider router={router2} />
+      )}
     </div>
   );
 }

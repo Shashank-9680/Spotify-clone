@@ -5,11 +5,13 @@ const app = express();
 const passport = require("passport");
 const { User } = require("./model/User");
 const songRoutes = require("./routes/song");
+const cors = require("cors");
 const playlistRoutes = require("./routes/playlist");
 var JwtStrategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
 const authRoutes = require("./routes/auth");
 app.use(express.json());
+app.use(cors());
 const port = 8080;
 app.get("/", (req, res) => {
   res.send("hello world");

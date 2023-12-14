@@ -1,10 +1,32 @@
 import React from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import TextInput from "./shared/TextInput";
 import PasswordInput from "./shared/PasswordInput";
-import { Link } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
+import { makeUnauthenticatedPOSTRequest } from "../utils/serviceHelpers";
+import { useCookies } from "react-cookie";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [cookies, setCookie] = useCookies(["token"]);
+  const navigate = useNavigate();
+  const Logindata = async () => {
+    const data = { email, password };
+    const response = await makeUnauthenticatedPOSTRequest("/auth/login", data);
+    if (response && !response.err) {
+      const token = response.token;
+      const date = new Date();
+      date.setDate(date.getDate() + 30);
+      setCookie("token", token, { path: "/", expires: date });
+      alert("Success");
+      navigate("/home");
+    } else {
+      alert("Failure");
+    }
+  };
   return (
     <div className="w-full h-full flex flex-col items-center ">
       <div className="logo p-5 border-b border-solid border-gray-300 w-full flex justify-center">
@@ -16,10 +38,23 @@ const Login = () => {
           label="Email address or username"
           placeholder="Email address or Username"
           className="my-6"
+          value={email}
+          setValue={setEmail}
         ></TextInput>
-        <PasswordInput label="Password" placeholder="Password"></PasswordInput>
+        <PasswordInput
+          label="Password"
+          placeholder="Password"
+          value={password}
+          setValue={setPassword}
+        ></PasswordInput>
         <div className=" w-full flex item-centre justify-end my-8">
-          <button className="bg-green-400 font-semibold p-3 px-10 rounded-full">
+          <button
+            className="bg-green-400 font-semibold p-3 px-10 rounded-full"
+            onClick={(e) => {
+              e.preventDefault();
+              Logindata();
+            }}
+          >
             Login
           </button>
         </div>
