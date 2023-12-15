@@ -5,8 +5,28 @@ import { Icon } from "@iconify/react";
 import TextWithHover from "./shared/Textwithhover";
 import TextInput from "./shared/TextInput";
 import CloudinaryUpload from "./shared/CloudinaryUpload";
+import { useState } from "react";
+import { makeAuthenticatedPOSTRequest } from "../utils/serviceHelpers";
+import { useNavigate } from "react-router-dom";
 
-const LoggedInHome = () => {
+const UploadSong = () => {
+  const [name, setName] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
+  const [playlistUrl, setPlaylistUrl] = useState("");
+  const [uploadedSongFileName, setUploadedSongFileName] = useState();
+  const navigate = useNavigate();
+  const submitSong = async () => {
+    const data = { name, thumbnail, track: playlistUrl };
+    const response = await makeAuthenticatedPOSTRequest("/song/create", data);
+    if (response.err) {
+      alert("Could not create song");
+      return;
+    } else {
+      alert("Success");
+      navigate("/loggedinhome");
+    }
+    console.log(response);
+  };
   return (
     <div className="h-full w-full flex ">
       <div className="h-full w-1/5 bg-black flex flex-col justify-between pb-10">
@@ -77,6 +97,8 @@ const LoggedInHome = () => {
                 label="Name"
                 labelClassName="text-white"
                 placeholder="Name"
+                value={name}
+                setValue={setName}
               ></TextInput>
             </div>
 
@@ -86,17 +108,34 @@ const LoggedInHome = () => {
                 label="Thumbnail"
                 labelClassName="text-white"
                 placeholder="Thumbnail"
+                value={thumbnail}
+                setValue={setThumbnail}
               ></TextInput>
             </div>
           </div>
-          <div className="pt-5 ">
-            <CloudinaryUpload></CloudinaryUpload>
+          <div className="py-5 ">
+            {uploadedSongFileName ? (
+              <div className="bg-white rounded-full p-3 w-1/3">
+                {uploadedSongFileName.substring(0, 35)}...
+              </div>
+            ) : (
+              <CloudinaryUpload
+                setUrl={setPlaylistUrl}
+                setName={setUploadedSongFileName}
+              ></CloudinaryUpload>
+            )}
           </div>
           {/* <TextInput></TextInput> */}
+          <div
+            className="bg-white w-40 flex items-center justify-center p-4 rounded-full cursor-pointer font-semibold"
+            onClick={submitSong}
+          >
+            Submit Song
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoggedInHome;
+export default UploadSong;

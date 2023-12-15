@@ -22,28 +22,44 @@ app.use("/playlist", playlistRoutes.router);
 app.listen(port, () => {
   console.log("App is running on port " + port);
 });
+
+let opts = {};
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = "thisKeyissupposedtobesecret";
+// passport.use(
+//   new JwtStrategy(opts, function async(jwt_payload, done) {
+//     User.findOne({ id: jwt_payload.sub }, function (err, user) {
+//       if (err) {
+//         return done(err, false);
+//       }
+//       if (user) {
+//         return done(null, user);
+//       } else {
+//         return done(null, false);
+//         // or you could create a new account
+//       }
+//     });
+//   })
+// );
+passport.use(
+  "jwt",
+  new JwtStrategy(opts, async function (jwt_payload, done) {
+    try {
+      const user = await User.findById(jwt_payload.identifier).exec();
+
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    } catch (err) {
+      return done(err, false);
+    }
+  })
+);
 main().catch((err) => console.log(err));
 
 async function main() {
   await mongoose.connect(process.env.MONGODB_URL);
   console.log("database connected");
 }
-
-let opts = {};
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = "thisKeyissupposedtobesecret";
-passport.use(
-  new JwtStrategy(opts, function (jwt_payload, done) {
-    User.findOne({ id: jwt_payload.sub }, function (err, user) {
-      if (err) {
-        return done(err, false);
-      }
-      if (user) {
-        return done(null, user);
-      } else {
-        return done(null, false);
-        // or you could create a new account
-      }
-    });
-  })
-);

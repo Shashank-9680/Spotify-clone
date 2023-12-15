@@ -4,12 +4,15 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
+import { useState } from "react";
 import Login from "./componenets/Login";
 import SignUp from "./componenets/SignUp";
 import Home from "./componenets/Home";
 import { Cookies, useCookies } from "react-cookie";
 import LoggedInHome from "./componenets/LoggedInHome";
 import UploadSong from "./componenets/UploadSong";
+import MyMusic from "./componenets/MyMusic";
+import songContext from "./contexts/songContext";
 const router1 = createBrowserRouter([
   {
     path: "/",
@@ -23,6 +26,10 @@ const router1 = createBrowserRouter([
   {
     path: "/uploadsong",
     element: <UploadSong></UploadSong>,
+  },
+  {
+    path: "/mymusic",
+    element: <MyMusic />,
   },
   {
     path: "*",
@@ -49,10 +56,13 @@ const router2 = createBrowserRouter([
 ]);
 function App() {
   const [cookie, setCookie] = useCookies(["token"]);
+  const [currentSong, setCurrentSong] = useState(null);
   return (
     <div className="w-screen h-screen font-poppins">
       {cookie.token ? (
-        <RouterProvider router={router1} />
+        <songContext.Provider value={{ currentSong, setCurrentSong }}>
+          <RouterProvider router={router1} />
+        </songContext.Provider>
       ) : (
         <RouterProvider router={router2} />
       )}

@@ -1,19 +1,18 @@
 import { openUploadWidget } from "../../utils/CloudinaryService";
-
-// import { cloudinary_upload_preset } from "../../config";
+import { cloudinary_upload_preset } from "../../config";
 
 const CloudinaryUpload = ({ setUrl, setName }) => {
   const uploadImageWidget = () => {
     let myUploadWidget = openUploadWidget(
       {
         cloudName: "dzxqvvqqx",
-        uploadPreset: "gjpmtfhg",
+        uploadPreset: cloudinary_upload_preset,
         sources: ["local"],
       },
       function (error, result) {
         if (!error && result.event === "success") {
-          //   setUrl(result.info.secure_url);
-          //   setName(result.info.original_filename);
+          setUrl(result.info.secure_url);
+          setName(result.info.original_filename);
           console.log(result.info);
         } else {
           if (error) {

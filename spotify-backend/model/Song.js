@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const Song = new Schema({
+const songSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -15,7 +15,7 @@ const Song = new Schema({
   },
   artist: {
     type: mongoose.Types.ObjectId,
-    ref: "user",
+    ref: "User",
   },
 });
-exports.SongModel = mongoose.model("Song", Song);
+exports.Song = mongoose.model("Song", songSchema);
