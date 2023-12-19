@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Howl, Howler } from "howler";
 import spotify_logo from "../assets/images/spotify_logo_white.svg";
 import IconText from "./shared/Icontext";
 import { Icon } from "@iconify/react";
 import TextWithHover from "./shared/Textwithhover";
+import LoggedInContainer from "../containers/LoggedInContainer";
+import songContext from "../contexts/songContext";
+import { makeAuthenticatedGETRequest } from "../utils/serviceHelpers";
+
 const focusCardsData = [
   {
     title: "Peaceful Piano",
@@ -69,148 +73,58 @@ const spotifyPlaylistsCardData = [
       "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
   },
 ];
-
 const LoggedInHome = () => {
-  const [soundPlayed, setsoundPlayed] = useState(null);
-  const playSound = (songSrc) => {
-    if (soundPlayed) {
-      soundPlayed.stop();
-    }
-    let sound = new Howl({
-      src: [songSrc],
-      html5: true,
-    });
-    setsoundPlayed(sound);
-    sound.play();
-  };
-  return (
-    <div className="h-full w-full bg-app-black ">
-      <div className="h-9/10 w-full flex">
-        <div className="h-full w-1/5 bg-black flex flex-col justify-between pb-10">
-          <div>
-            <div className="logoDiv p-6">
-              <img src={spotify_logo} alt="spotify logo" width={125} />
-            </div>
-            <div className="py-5">
-              <IconText
-                iconName={"material-symbols:home"}
-                displayText={"Home"}
-                active
-              />
-              <IconText
-                iconName={"material-symbols:search-rounded"}
-                displayText={"Search"}
-              />
-              <IconText
-                iconName={"icomoon-free:books"}
-                displayText={"Library"}
-              />
-              <IconText
-                iconName={"icomoon-free:books"}
-                displayText={"My music"}
-              />
-            </div>
-            <div className="pt-5">
-              <IconText
-                iconName={"material-symbols:add-box"}
-                displayText={"Create Playlist"}
-              />
-              <IconText
-                iconName={"mdi:cards-heart"}
-                displayText={"Liked Songs"}
-              />
-            </div>
-          </div>
-          <div className="px-5">
-            <div className="border border-gray-100 text-white w-2/5 flex px-2 py-1 rounded-full items-center justify-center hover:border-white cursor-pointer">
-              <Icon icon="carbon:earth-europe-africa" />
-              <div className="ml-2 text-sm font-semibold">English</div>
-            </div>
-          </div>
-        </div>
+  const [songData, setSongData] = useState([]);
+  const { userinfo, setUserInfo } = useContext(songContext);
+  useEffect(() => {
+    const getData = async () => {
+      const response = await makeAuthenticatedGETRequest("/song/get/allsongs");
+     
+      setSongData(response.data);
+    };
 
-        <div className="h-full w-4/5 bg-app-black overflow-auto">
-          <div className="navbar w-full h-1/10 bg-black bg-opacity-30 flex items-center justify-end">
-            <div className="w-1/2 flex h-full">
-              <div className="w-2/3 flex justify-around items-center">
-                <TextWithHover displayText={"Premium"} />
-                <TextWithHover displayText={"Support"} />
-                <TextWithHover displayText={"Download"} />
-                <div className="h-1/2 border-r border-white"></div>
-              </div>
-              <div className="w-1/3 flex justify-around h-full items-center">
-                <TextWithHover displayText={"Upload Song"} />
-                <div className="bg-white w-10 h-10 flex items-center justify-center rounded-full font-semibold cursor-pointer">
-                  SA
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="content p-8 pt-0 overflow-auto">
-            <PlaylistView titleText="Focus" cardsData={focusCardsData} />
-            <PlaylistView
-              titleText="Spotify Playlists"
-              cardsData={spotifyPlaylistsCardData}
-            />
-            <PlaylistView
-              titleText="Sound of India"
-              cardsData={focusCardsData}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="w-full h-1/10 bg-black bg-opacity-30 text-white flex items-center px-4">
-        <div className="w-1/4 flex items-center ">
-          <img
-            src="https://images.unsplash.com/photo-1682685796444-acc2f5c1b7b6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHwxfHx8ZW58MHx8fHx8"
-            alt="currentSongThumbnail"
-            className="h-14 w-14 rounded"
-          />
-          <div className="pl-4">
-            {" "}
-            <div className="text-sm hover:underline cursor-pointer">
-              Curtains
-            </div>
-            <div className="text-xs text-gray-500 hover:underline cursor-pointer">
-              Ed Sheeran
-            </div>
-          </div>
-        </div>
-        <div className="w-1/2 flex justify-center h-full">
-          <div></div>
-          {/* <div>Progress bar here</div> */}
-        </div>
-        <div className="w-1/4 flex justify-end">hello</div>
-      </div>
-    </div>
+    getData();
+  }, []);
+  return (
+    <LoggedInContainer currentActiveScreen={"home"}>
+      <PlaylistView titleText="Focus" cardsData={songData} />
+    </LoggedInContainer>
   );
 };
+
 const PlaylistView = ({ titleText, cardsData }) => {
   return (
-    <div className="text-white mt-8">
-      <div className="text-2xl font-semibold mb-5">{titleText}</div>
-      <div className="w-full flex justify-between space-x-4">
+    <>
+      <div className="text-white text-xl pt-8 font-semibold">{titleText}</div>
+      <div className="py-5 grid gap-5 grid-cols-5">
         {
           // cardsData will be an array
           cardsData.map((item) => {
             return (
               <Card
-                title={item.title}
-                description={item.description}
-                imgUrl={item.imgUrl}
+                title={item.name}
+                description={item.artist.firstName}
+                imgUrl={item.thumbnail}
+                item={item}
               />
             );
           })
         }
       </div>
-    </div>
+    </>
   );
 };
-const Card = ({ title, description, imgUrl }) => {
+const Card = ({ title, description, imgUrl, item }) => {
+  const { currentSong, setCurrentSong } = useContext(songContext);
   return (
-    <div className="bg-black bg-opacity-40 w-1/5 p-4 rounded-lg">
-      <div className="pb-4 pt-2">
-        <img className="w-full rounded-md" src={imgUrl} alt="label" />
+    <div
+      className="bg-black bg-opacity-40 w-full p-4 rounded-lg cursor-pointer"
+      onClick={() => {
+        setCurrentSong(item);
+      }}
+    >
+      <div className="pb-4 pt-2 ">
+        <img className="w-full h-40 rounded-md" src={imgUrl} alt="label" />
       </div>
       <div className="text-white font-semibold py-3">{title}</div>
       <div className="text-gray-500 text-sm">{description}</div>

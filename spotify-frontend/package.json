@@ -1,5 +1,6 @@
 {
   "name": "spotify-frontend",
+  "proxy": "http://localhost:8080",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,6 +9,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "build": "^0.1.4",
     "cloudinary-core": "^2.13.0",
     "cloudinary-react": "^1.8.1",
     "howler": "^2.2.4",

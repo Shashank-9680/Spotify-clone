@@ -33,7 +33,7 @@ const SignUp = () => {
       date.setDate(date.getDate() + 30);
       setCookie("token", token, { path: "/", expires: date });
       alert("Success");
-      // console.log(data);
+      
       navigate("/home");
     } else {
       alert("Failure");

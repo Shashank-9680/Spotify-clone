@@ -13,14 +13,15 @@ import LoggedInHome from "./componenets/LoggedInHome";
 import UploadSong from "./componenets/UploadSong";
 import MyMusic from "./componenets/MyMusic";
 import songContext from "./contexts/songContext";
+import Search from "./componenets/Search";
+import Library from "./componenets/Library";
+import SinglePlaylistView from "./componenets/SinglePlaylistView";
+import LikedSong from "./componenets/LikedSong";
+import Allplaylist from "./componenets/Allplaylist";
+import Profile from "./componenets/Profile";
 const router1 = createBrowserRouter([
   {
     path: "/",
-    element: <div>Shashank</div>,
-  },
-
-  {
-    path: "/loggedinhome",
     element: <LoggedInHome></LoggedInHome>,
   },
   {
@@ -32,11 +33,39 @@ const router1 = createBrowserRouter([
     element: <MyMusic />,
   },
   {
+    path: "/search",
+    element: <Search />,
+  },
+  {
+    path: "/library",
+    element: <Library />,
+  },
+  {
+    path: "/playlist/:playlistId",
+    element: <SinglePlaylistView />,
+  },
+  {
+    path: "/likedsongs",
+    element: <LikedSong />,
+  },
+  {
+    path: "/allplaylist",
+    element: <Allplaylist />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
     path: "*",
-    element: <Navigate to="/loggedinhome"></Navigate>,
+    element: <Navigate to="/"></Navigate>,
   },
 ]);
 const router2 = createBrowserRouter([
+  {
+    path: "/home",
+    element: <Home></Home>,
+  },
   {
     path: "/login",
     element: <Login></Login>,
@@ -45,22 +74,39 @@ const router2 = createBrowserRouter([
     path: "/signup",
     element: <SignUp></SignUp>,
   },
-  {
-    path: "/home",
-    element: <Home></Home>,
-  },
+
   {
     path: "*",
-    element: <Navigate to="/login"></Navigate>,
+    element: <Navigate to="/home"></Navigate>,
   },
 ]);
 function App() {
   const [cookie, setCookie] = useCookies(["token"]);
+  const [soundPlayed, setSoundPlayed] = useState(null);
+  const [isPaused, setIsPaused] = useState(true);
   const [currentSong, setCurrentSong] = useState(null);
+  const [color, setColor] = useState(false);
+  const [userinfo, setUserInfo] = useState(null);
+  const [progress, setProgress] = useState(0);
   return (
     <div className="w-screen h-screen font-poppins">
       {cookie.token ? (
-        <songContext.Provider value={{ currentSong, setCurrentSong }}>
+        <songContext.Provider
+          value={{
+            currentSong,
+            progress,
+            setProgress,
+            setCurrentSong,
+            soundPlayed,
+            setSoundPlayed,
+            isPaused,
+            setIsPaused,
+            color,
+            setColor,
+            userinfo,
+            setUserInfo,
+          }}
+        >
           <RouterProvider router={router1} />
         </songContext.Provider>
       ) : (
