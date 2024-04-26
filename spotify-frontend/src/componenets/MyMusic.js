@@ -22,7 +22,7 @@ const MyMusic = () => {
 
     getData();
   }, []);
-  console.log(songData);
+
   return (
     <LoggedInContainer currentActiveScreen={"mymusic"}>
       <div className="text-white text-xl font-semibold pb-4 pl-2 pt-8">

@@ -8,14 +8,14 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     // req.user getss the user because of passport.authenticate
-    const { name, thumbnail, track } = req.body;
-    if (!name || !thumbnail || !track) {
+    const { name, thumbnail, track, description } = req.body;
+    if (!name || !thumbnail || !track || !description) {
       return res
         .status(301)
         .json({ err: "Insufficient details to create song." });
     }
     const artist = req.user._id;
-    const songDetails = { name, thumbnail, track, artist };
+    const songDetails = { name, thumbnail, track, artist, description };
 
     const createdSong = await Song.create(songDetails);
 
@@ -23,11 +23,25 @@ router.post(
   }
 );
 router.get(
+  "/get/allsongs",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const allSongs = await Song.find().populate("artist");
+      return res.status(200).json({ data: allSongs });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+router.get(
   "/get/mysongs",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     const songs = await Song.find({ artist: req.user._id }).populate("artist");
-    console.log(songs);
+
     return res.status(200).json({ data: songs });
   }
 );
@@ -54,7 +68,9 @@ router.get(
     const regex = new RegExp(songName, "i"); // "i" for case-insensitive matching
 
     try {
-      const songs = await Song.find({ name: { $regex: regex } });
+      const songs = await Song.find({ name: { $regex: regex } }).populate(
+        "artist"
+      );
       return res.status(200).json({ data: songs });
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });

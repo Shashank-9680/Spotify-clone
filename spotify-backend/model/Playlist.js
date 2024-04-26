@@ -12,7 +12,7 @@ const playlistSchema = new Schema({
   songs: [
     {
       type: mongoose.Types.ObjectId,
-      ref: "song",
+      ref: "Song",
     },
   ],
   owner: {

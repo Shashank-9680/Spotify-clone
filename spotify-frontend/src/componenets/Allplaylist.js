@@ -20,7 +20,7 @@ const Allplaylist = () => {
   return (
     <LoggedInContainer currentActiveScreen={"allplaylist"}>
       <div className="text-white text-xl pt-8 font-semibold">My Playlists</div>
-      <div className="py-5 grid gap-5 grid-cols-5">
+      <div className="py-8 grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {playlist.map((item) => {
           return (
             <Card

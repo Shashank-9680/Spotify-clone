@@ -13,11 +13,11 @@ const Library = () => {
     };
     getData();
   }, []);
-
+  console.log(myPlaylists);
   return (
     <LoggedInContainer currentActiveScreen={"library"}>
       <div className="text-white text-xl pt-8 font-semibold">My Playlists</div>
-      <div className="py-5 grid gap-5 grid-cols-5">
+      <div className="py-5 grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {myPlaylists.map((item) => {
           return (
             <Card
@@ -26,6 +26,7 @@ const Library = () => {
               description=""
               imgUrl={item.thumbnail}
               playlistId={item._id}
+              myPlaylists={myPlaylists}
             />
           );
         })}
@@ -34,13 +35,17 @@ const Library = () => {
   );
 };
 
-const Card = ({ title, description, imgUrl, playlistId }) => {
+const Card = ({ title, description, imgUrl, playlistId, myPlaylists }) => {
   const navigate = useNavigate();
   return (
     <div
       className="bg-black bg-opacity-40 w-full p-4 rounded-lg cursor-pointer"
       onClick={() => {
-        navigate("/playlist/" + playlistId);
+        myPlaylists.forEach((item) => {
+          if (item.songs.length > 0) {
+            navigate("/playlist/" + playlistId);
+          }
+        });
       }}
     >
       <div className="pb-4 pt-2">

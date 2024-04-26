@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import spotify_logo from "../assets/images/spotify_logo_white.svg";
 import IconText from "./shared/Icontext";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import TextWithHover from "./shared/Textwithhover";
+import { RxCross2 } from "react-icons/rx";
+import { RxHamburgerMenu } from "react-icons/rx";
 const focusCardsData = [
   {
     title: "Peaceful Piano",
@@ -71,9 +73,11 @@ const spotifyPlaylistsCardData = [
 ];
 
 const Home = () => {
+  const [showCross, setShowCross] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   return (
     <div className="h-full w-full flex ">
-      <div className="h-full w-1/5 bg-black flex flex-col justify-between pb-10">
+      <div className="h-full hidden md:w-1/5 bg-black md:flex md:flex-col md:justify-between pb-10 ">
         <div>
           <div className="logoDiv p-6">
             <img src={spotify_logo} alt="spotify logo" width={125} />
@@ -109,9 +113,9 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="h-full w-4/5 bg-app-black overflow-auto">
+      <div className="h-full w-full md:w-4/5 bg-app-black overflow-auto">
         <div className="navbar w-full h-1/10 bg-black bg-opacity-30 flex items-center justify-end">
-          <div className="w-1/2 flex h-full">
+          <div className="w-full justify-center lg:w-1/2 flex h-full">
             <div className="w-3/5 flex justify-around items-center">
               <TextWithHover displayText={"Premium"} />
               <TextWithHover displayText={"Support"} />
@@ -148,7 +152,7 @@ const PlaylistView = ({ titleText, cardsData }) => {
   return (
     <div className="text-white mt-8">
       <div className="text-2xl font-semibold mb-5">{titleText}</div>
-      <div className="w-full flex justify-between space-x-4">
+      <div className="w-full flex flex-wrap gap-6 justify-center md:justify-start ">
         {
           // cardsData will be an array
           cardsData.map((item) => {
@@ -167,7 +171,7 @@ const PlaylistView = ({ titleText, cardsData }) => {
 };
 const Card = ({ title, description, imgUrl }) => {
   return (
-    <div className="bg-black bg-opacity-40 w-1/5 p-4 rounded-lg">
+    <div className="bg-black bg-opacity-40 w-[22rem] max-w-xs p-4 rounded-lg">
       <div className="pb-4 pt-2">
         <img className="w-full rounded-md" src={imgUrl} alt="label" />
       </div>

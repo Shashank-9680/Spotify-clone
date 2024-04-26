@@ -10,22 +10,25 @@ const playlistRoutes = require("./routes/playlist");
 var JwtStrategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
 const authRoutes = require("./routes/auth");
+const LikedSongsRoutes = require("./routes/LikedSong.js");
+
+const path = require("path");
 app.use(express.json());
 app.use(cors());
 const port = 8080;
-app.get("/", (req, res) => {
-  res.send("hello world");
-});
+
 app.use("/auth", authRoutes.router);
 app.use("/song", songRoutes.router);
 app.use("/playlist", playlistRoutes.router);
+app.use("/likedsongs", LikedSongsRoutes.router);
 app.listen(port, () => {
   console.log("App is running on port " + port);
 });
 
 let opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = "thisKeyissupposedtobesecret";
+opts.secretOrKey = process.env.SECRET_KEY;
+app.use(express.static(path.resolve(__dirname, "build")));
 // passport.use(
 //   new JwtStrategy(opts, function async(jwt_payload, done) {
 //     User.findOne({ id: jwt_payload.sub }, function (err, user) {

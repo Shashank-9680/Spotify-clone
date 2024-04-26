@@ -18,25 +18,38 @@ import AddToPlaylistModal from "../modals/AddtoPlaylistModal";
 import { makeAuthenticatedPOSTRequest } from "../utils/serviceHelpers";
 import { makeAuthenticatedGETRequest } from "../utils/serviceHelpers";
 import { Navigate, useNavigate } from "react-router-dom";
-const LoggedInContainer = ({ children, currentActiveScreen }) => {
+import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
+import { RxCross1 } from "react-icons/rx";
+const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
   const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false);
   const [addToPlaylistModalOpen, setAddToPlaylistModalOpen] = useState(false);
-  const [color, setColor] = useState(songContext);
+  const { color, setColor } = useContext(songContext);
   const { userinfo, setUserInfo } = useContext(songContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [cookie, setCookie] = useCookies(["token"]);
   const navigate = useNavigate();
-  const [likedsongs, setlikedSongs] = useState([]);
+
+  const [artistlikedsongs, setartistlikedsongs] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [initialSongIndex, setInitialSongIndex] = useState(null);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [show, setShow] = useState(false);
 
   const {
     currentSong,
     setCurrentSong,
     soundPlayed,
     setSoundPlayed,
+    isCurrentSongLiked,
+    setLikedSongs,
+    likedSongs,
+    setIsCurrentSongLiked,
     isPaused,
     setIsPaused,
   } = useContext(songContext);
+  console.log(currentSong);
   const firstUpdate = useRef(true);
+
   useLayoutEffect(() => {
     if (firstUpdate.current) {
       firstUpdate.current = false;
@@ -45,9 +58,12 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     if (!currentSong) {
       return;
     } else {
-      changeSong(currentSong.track);
+      changeSong(currentSong.track, songData.indexOf(currentSong));
+      setColor(false);
+      setInitialSongIndex(songData.indexOf(currentSong));
     }
   }, [currentSong && currentSong.track]);
+
   const playSound = () => {
     if (!soundPlayed) {
       return;
@@ -55,21 +71,28 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       soundPlayed.play();
     }
   };
-  const changeSong = (songSrc) => {
+
+  const changeSong = (songSrc, initialIndex) => {
     if (soundPlayed) {
       soundPlayed.stop();
+      setProgress(0); // Reset progress when changing song
     }
     let sound = new Howl({
       src: [songSrc],
       html5: true,
     });
+    const selectedSong = songData[initialIndex];
+    setCurrentSong(selectedSong);
+    setCurrentSongIndex(initialIndex);
     setSoundPlayed(sound);
     sound.play();
     setIsPaused(false);
   };
+
   const pauseSound = () => {
     soundPlayed.pause();
   };
+
   const togglePlayPause = () => {
     if (isPaused) {
       playSound();
@@ -79,40 +102,41 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       setIsPaused(true);
     }
   };
-  const { progress, setProgress } = useContext(songContext); // State to track progress of the song
 
+  // State to track progress of the song
   const progressBar = useRef(null);
   const isSeeking = useRef(false);
   const isPlaying = useRef(false);
 
   useEffect(() => {
-    if (soundPlayed) {
-      const updateProgress = () => {
+    let animationId;
+
+    const updateProgress = () => {
+      if (soundPlayed) {
         if (!isSeeking.current && isPlaying.current) {
           const newPosition =
             (soundPlayed.seek() / soundPlayed.duration()) * 100;
           setProgress(newPosition);
         }
-        requestAnimationFrame(updateProgress);
-      };
-      const animationId = requestAnimationFrame(updateProgress);
+        animationId = requestAnimationFrame(updateProgress);
+      }
+    };
 
-      return () => cancelAnimationFrame(animationId);
-    }
-  }, [soundPlayed, isPlaying]);
+    isPlaying.current = !isPaused; // Update isPlaying flag based on isPaused state
+    animationId = requestAnimationFrame(updateProgress);
 
-  useEffect(() => {
-    if (!currentSong) {
-      // Reset progress when a new song starts playing
-      setProgress(0);
-    }
-  }, [currentSong, soundPlayed]);
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [soundPlayed, isPaused, setProgress]);
+
   if (soundPlayed) {
     soundPlayed.on("end", () => {
-      setProgress(0);
+      // setProgress(0);
       setIsPaused(true);
     });
   }
+
   const handleProgressChange = (e) => {
     const newPosition = e.target.value;
     setProgress(newPosition);
@@ -127,7 +151,22 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   const handleSeekMouseUp = () => {
     isSeeking.current = false;
   };
+  const handlePrevSong = () => {
+    let newIndex = currentSongIndex - 1;
+    if (newIndex < 0) {
+      newIndex = songData.length - 1; // Loop back to the last song
+    }
+    changeSong(songData[newIndex].track, newIndex);
+  };
+  const handleNextSong = () => {
+    let newIndex = currentSongIndex + 1;
+    if (newIndex >= songData.length) {
+      newIndex = 0; // Loop back to the initial song
+    }
+    changeSong(songData[newIndex].track, newIndex);
+  };
 
+  // ... (rest of the code remains the same)
   const addSongToPlaylist = async (playlistId) => {
     const songId = currentSong._id;
 
@@ -137,27 +176,13 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       payload
     );
     if (response._id) {
+      alert("succesfully added");
       setAddToPlaylistModalOpen(false);
-    }
-  };
-  const addSongToLikedSongs = async () => {
-    const songId = currentSong._id;
-
-    const payload = { songId };
-    const response = await makeAuthenticatedPOSTRequest(
-      "/likedsongs/create",
-      payload
-    );
-    setlikedSongs(response.songs);
-    if (response && response.error === "Song already exists in liked songs") {
-      alert("Song already exists in liked songs");
-    } else if (response.err) {
-      alert("Song is Not Added to Liked Songs");
     } else {
-      alert("Song is Added to Liked Songs");
+      alert("failed");
     }
   };
-  console.log(likedsongs);
+
   useEffect(() => {
     const getData = async () => {
       const response = await makeAuthenticatedGETRequest(
@@ -168,6 +193,60 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
 
     getData();
   }, []);
+
+  const handleLikeSong = async () => {
+    try {
+      const userId = userinfo?._id; // Replace with the actual user ID
+      const songId = currentSong?._id;
+      const payload = { userId, songId };
+
+      if (isCurrentSongLiked) {
+        // Unlike the song
+        const response = await makeAuthenticatedPOSTRequest(
+          "/likedsongs/unlike",
+          payload
+        );
+        console.log(response);
+
+        if (response.error) {
+          if (response.error === "Internal server error") {
+            alert("failed to like songs");
+          } else {
+            alert("Error: " + response.error);
+          }
+        } else {
+          const updatedLikedSongs = likedSongs.filter(
+            (likedSong) => likedSong.song._id !== songId
+          );
+          setIsCurrentSongLiked(false);
+          setLikedSongs(updatedLikedSongs);
+          alert("Unlike the song");
+        }
+      } else {
+        const response = await makeAuthenticatedPOSTRequest(
+          "/likedsongs/like",
+          payload
+        );
+        console.log(response);
+
+        if (response.error) {
+          if (response.error === "Internal server error") {
+            alert("failed");
+          } else {
+            alert("Error: " + response.error);
+          }
+        } else {
+          setIsCurrentSongLiked(true);
+          const updatedLikedSongs = [...likedSongs, { song: currentSong }];
+          setLikedSongs(updatedLikedSongs);
+          alert("liked song succesful");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -187,6 +266,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       deleteCookie("token");
     }
   };
+  // const handleSidbar = () => {
+  //   setShow();
+  // };
 
   return (
     <div className="h-full w-full bg-app-black " onClick={closetoggleDropdown}>
@@ -206,12 +288,17 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
         />
       )}
 
-      <div className={`${currentSong ? "h-7/8" : "h-full"} w-full flex`}>
-        <div className="h-full w-1/6 bg-black flex flex-col justify-between pb-10">
+      <div className={`${currentSong ? "h-7/8" : "h-full"} w-full flex `}>
+        <div
+          className={`h-full ${
+            show ? "w-1/3" : "hidden"
+          }  md:w-1/6 bg-black md:flex md:flex-col justify-between  overflow-hidden`}
+        >
           <div>
             <div className="logoDiv p-6">
               <img src={spotify_logo} alt="spotify logo" width={125} />
             </div>
+
             <div className="py-5">
               <IconText
                 iconName={"material-symbols:home"}
@@ -238,7 +325,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 active={currentActiveScreen === "mymusic"}
               />
             </div>
-            <div className="pt-5">
+            <div className="py-5">
               <IconText
                 iconName={"material-symbols:add-box"}
                 displayText={"Create Playlist"}
@@ -249,34 +336,46 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
               <IconText
                 iconName={"mdi:cards-heart"}
                 displayText={"Liked Songs"}
-                targetLink={"/likedsongs"}
+                targetLink={`/likedsongs/${userinfo?._id}`}
                 active={currentActiveScreen === "likedsongs"}
               />
             </div>
           </div>
-          <div className="px-5">
-            <div className="border border-gray-100 text-white w-2/5 flex px-2 py-1 rounded-full items-center justify-center hover:border-white cursor-pointer">
+          <div className="px-5 mb-4">
+            <div className="border border-gray-100 text-white px-4 py-2 rounded-full  flex  items-center justify-center hover:border-white">
               <Icon icon="carbon:earth-europe-africa" />
-              <div className="ml-2 text-sm font-semibold">English</div>
+              <div className="ml-2 text-sm font-semibold ">English</div>
             </div>
           </div>
         </div>
 
-        <div className="h-full w-5/6 bg-app-black overflow-auto">
-          <div className="navbar w-full h-1/10 bg-black bg-opacity-30 flex items-center justify-end">
-            <div className="w-1/2 flex h-full">
-              <div className="w-2/3 flex justify-around items-center">
+        <div
+          className={`h-full w-full ${
+            show ? "w-2/3" : ""
+          } md:w-5/6 bg-app-black overflow-auto`}
+        >
+          <div className="navbar w-full  bg-black bg-opacity-30 flex items-center p-4">
+            <div className="w-full flex justify-between items-center">
+              <div className="flex gap-2">
+                <div
+                  onClick={() => setShow((prev) => !prev)}
+                  className="flex justify-center items-center md:hidden cursor-pointer"
+                >
+                  {show ? (
+                    <RxCross2 color="white" />
+                  ) : (
+                    <RxHamburgerMenu color="white" />
+                  )}
+                </div>
                 <TextWithHover
                   displayText={"All Playlist"}
                   live={true}
                   targetLink={"/allplaylist"}
                   active={currentActiveScreen === "playlist"}
                 />
-                <TextWithHover displayText={"Support"} />
-                <TextWithHover displayText={"Download"} />
-                <div className="h-1/2 border-r border-white"></div>
+                {/* <div className="border-r border-white"></div> */}
               </div>
-              <div className="w-1/3 flex justify-around h-full items-center">
+              <div className="flex gap-3">
                 <TextWithHover
                   displayText={"Upload Song"}
                   active={currentActiveScreen === "uploadsong"}
@@ -300,11 +399,11 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
               </div>
             </div>
           </div>
-          <div className="content p-8 pt-0   overflow-auto">{children}</div>
+          <div className="content p-8 pt-0 overflow-auto ">{children}</div>
         </div>
       </div>
       {currentSong && (
-        <div className="w-full  bg-black  bg-opacity-30 text-white flex overflow-hidden">
+        <div className="w-full h-1/8 bg-black  bg-opacity-30 text-white flex overflow-hidden">
           <div className="w-1/4 flex items-center ">
             <img
               src={currentSong.thumbnail}
@@ -334,6 +433,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 icon="mdi:skip-previous-outline"
                 fontSize={30}
                 className="cursor-pointer text-gray-500 hover:text-white"
+                onClick={handlePrevSong}
               />
               <Icon
                 icon={
@@ -349,6 +449,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 icon="mdi:skip-next-outline"
                 fontSize={30}
                 className="cursor-pointer text-gray-500 hover:text-white"
+                onClick={handleNextSong}
               />
               <Icon
                 icon="ic:twotone-repeat"
@@ -390,27 +491,13 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 setAddToPlaylistModalOpen(true);
               }}
             />
-
-            {likedsongs && likedsongs.includes(currentSong.name) ? (
-              <Icon
-                icon="basil:heart-solid"
-                color="red"
-                fontSize={25}
-                className="text-gray-400 cursor-pointer hover:text-white"
-                onClick={() => {
-                  addSongToLikedSongs();
-                }}
-              />
-            ) : (
-              <Icon
-                icon="basil:heart-solid"
-                fontSize={25}
-                className="text-gray-400 cursor-pointer hover:text-white"
-                onClick={() => {
-                  addSongToLikedSongs();
-                }}
-              ></Icon>
-            )}
+            <Icon
+              icon={"basil:heart-solid"}
+              color={isCurrentSongLiked ? "red" : "gray"}
+              fontSize={25}
+              className="cursor-pointer"
+              onClick={handleLikeSong}
+            />
           </div>
         </div>
       )}

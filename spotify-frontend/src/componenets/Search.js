@@ -20,33 +20,38 @@ const Search = () => {
   return (
     <LoggedInContainer currentActiveScreen="search">
       <div className="w-full py-6">
-        <div
-          className={`w-1/3 p-3 text-sm rounded-full bg-gray-800 px-5 flex text-white space-x-3 items-center ${
-            isInputFocused ? "border border-white" : ""
-          }`}
-        >
-          <Icon icon="ic:outline-search" className="text-lg" />
-          <input
-            type="text"
-            placeholder="What do you want to listen to?"
-            className="w-full bg-gray-800 focus:outline-none"
-            onFocus={() => {
-              setIsInputFocused(true);
-            }}
-            onBlur={() => {
-              setIsInputFocused(false);
-            }}
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                searchSong();
-              }
-            }}
-          />
+        <div className="flex justify-center">
+          <div
+            className={`py-3 text-sm rounded-full bg-gray-800 px-[3rem] flex text-white space-x-3 items-center ${
+              isInputFocused
+                ? "border border-white"
+                : "border border-transparent"
+            }`} // Add a transparent border when not focused
+          >
+            <Icon icon="ic:outline-search" className="text-lg" />
+            <input
+              type="text"
+              placeholder="What do you want to listen to?"
+              className=" w-[10rem] sm:w-[15rem] bg-gray-800 focus:outline-none"
+              onFocus={() => {
+                setIsInputFocused(true);
+              }}
+              onBlur={() => {
+                setIsInputFocused(false);
+              }}
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  searchSong();
+                }
+              }}
+            />
+          </div>
         </div>
+
         {songData.length > 0 ? (
           <div className="pt-10 space-y-3">
             <div className="text-white">

@@ -25,7 +25,7 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true,
-    privare: true,
+    private: true,
   },
   likedPlaylist: {
     type: String,

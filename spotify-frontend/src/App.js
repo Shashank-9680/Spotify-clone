@@ -45,7 +45,7 @@ const router1 = createBrowserRouter([
     element: <SinglePlaylistView />,
   },
   {
-    path: "/likedsongs",
+    path: "/likedsongs/:id",
     element: <LikedSong />,
   },
   {
@@ -87,19 +87,25 @@ function App() {
   const [currentSong, setCurrentSong] = useState(null);
   const [color, setColor] = useState(false);
   const [userinfo, setUserInfo] = useState(null);
-  const [progress, setProgress] = useState(0);
+  const [isCurrentSongLiked, setIsCurrentSongLiked] = useState(false);
+  const [likedSongs, setLikedSongs] = useState([]);
+  // const [progress, setProgress] = useState(0);
   return (
-    <div className="w-screen h-screen font-poppins">
+    <div className="w-screen h-screen font-poppins ">
       {cookie.token ? (
         <songContext.Provider
           value={{
             currentSong,
-            progress,
-            setProgress,
+            setLikedSongs,
+            likedSongs,
+            // progress,
+            // setProgress,
             setCurrentSong,
             soundPlayed,
             setSoundPlayed,
             isPaused,
+            isCurrentSongLiked,
+            setIsCurrentSongLiked,
             setIsPaused,
             color,
             setColor,
