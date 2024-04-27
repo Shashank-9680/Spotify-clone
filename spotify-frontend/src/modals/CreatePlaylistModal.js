@@ -13,7 +13,7 @@ const CreatePlaylistModal = ({ closeModal }) => {
         thumbnail: playlistThumbnail,
         songs: [],
       });
-      console.log(response);
+
       if (response.error) {
         if (response.error === "Playlist name already exists") {
           alert("Playlist name already exists");

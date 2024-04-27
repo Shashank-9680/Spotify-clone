@@ -47,7 +47,6 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
     isPaused,
     setIsPaused,
   } = useContext(songContext);
-  console.log(currentSong);
   const firstUpdate = useRef(true);
 
   useLayoutEffect(() => {
@@ -196,8 +195,8 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
 
   const handleLikeSong = async () => {
     try {
-      const userId = userinfo?._id; // Replace with the actual user ID
-      const songId = currentSong?._id;
+      const userId = userinfo._id; // Replace with the actual user ID
+      const songId = currentSong._id;
       const payload = { userId, songId };
 
       if (isCurrentSongLiked) {
@@ -206,7 +205,6 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
           "/likedsongs/unlike",
           payload
         );
-        console.log(response);
 
         if (response.error) {
           if (response.error === "Internal server error") {
@@ -227,7 +225,6 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
           "/likedsongs/like",
           payload
         );
-        console.log(response);
 
         if (response.error) {
           if (response.error === "Internal server error") {
@@ -403,7 +400,7 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
         </div>
       </div>
       {currentSong && (
-        <div className="w-full h-1/8 bg-black  bg-opacity-30 text-white flex overflow-hidden">
+        <div className="w-full h-1/8 bg-black  bg-opacity-30 text-white flex overflow-x-hidden">
           <div className="w-1/4 flex items-center ">
             <img
               src={currentSong.thumbnail}

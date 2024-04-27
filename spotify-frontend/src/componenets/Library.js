@@ -13,7 +13,7 @@ const Library = () => {
     };
     getData();
   }, []);
-  console.log(myPlaylists);
+
   return (
     <LoggedInContainer currentActiveScreen={"library"}>
       <div className="text-white text-xl pt-8 font-semibold">My Playlists</div>

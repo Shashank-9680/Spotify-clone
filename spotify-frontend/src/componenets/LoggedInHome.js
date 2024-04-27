@@ -20,7 +20,7 @@ const LoggedInHome = () => {
           const userId = userinfo._id;
           const response = await fetch(`/likedsongs/liked/${userId}`);
           const data = await response.json();
-          console.log(data);
+
           setLikedSongs(data);
 
           // Check if the current song is liked

@@ -33,18 +33,18 @@ const SignUp = () => {
       date.setDate(date.getDate() + 30);
       setCookie("token", token, { path: "/", expires: date });
       alert("Success");
-      
+
       navigate("/home");
     } else {
       alert("Failure");
     }
   };
   return (
-    <div className="w-full h-full flex flex-col items-center ">
+    <div className="w-full h-full flex flex-col items-center overflow-x-hidden ">
       <div className="logo p-5 border-b border-solid border-gray-300 w-full flex justify-center">
         <Icon icon="logos:spotify" width={150} />
       </div>
-      <div className="inputRegion w-1/3 py-10 flex items-center justify-center flex-col">
+      <div className="inputRegion sm:w-1/3 py-10 sm:flex sm:items-center sm:justify-center sm:flex-col px-4 sm:px-0">
         <div className="font-bold mb-2 text-2xl">
           Sign Up for free to start Listening
         </div>
@@ -75,7 +75,7 @@ const SignUp = () => {
           value={password}
           setValue={setPassword}
         ></PasswordInput>
-        <div className="w-full flex justify-between items-center space-x-8">
+        <div className="w-full md:flex md:justify-between md:items-center md:space-x-8">
           <TextInput
             label="First Name"
             placeholder="Enter your First Name"

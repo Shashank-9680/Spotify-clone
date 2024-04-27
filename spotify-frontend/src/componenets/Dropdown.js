@@ -6,7 +6,7 @@ const Dropdown = ({ logoutHandler }) => {
       <div className="py-1">
         <div
           className="px-4 py-2 text-sm text-white hover:bg-app-black cursor-pointer"
-          onClick={() => console.log("Profile clicked")} // Replace with appropriate action
+          // Replace with appropriate action
         >
           Profile
         </div>

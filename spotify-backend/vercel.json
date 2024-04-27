@@ -69,6 +69,10 @@
     },
     {
       "src": "/(.*)",
+      "dest": "/build/index.html"
+    },
+    {
+      "src": "/(.*)",
       "dest": "/index.js"
     }
   ]
