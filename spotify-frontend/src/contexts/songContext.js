@@ -44,7 +44,7 @@ const SongProvider = ({ children }) => {
           const isLiked =
             data &&
             data.some((likedSong) => likedSong?.song?._id === currentSong?._id);
-          setIsCurrentSongLiked(isLiked);
+          // setIsCurrentSongLiked(isLiked);
         }
         setIsLikedSongDataLoading(false);
       } catch (error) {
@@ -55,6 +55,15 @@ const SongProvider = ({ children }) => {
 
     fetchLikedSongs();
   }, [userinfo]);
+
+  useEffect(() => {
+    const isLiked =
+      likedSongs &&
+      likedSongs.length !== 0 &&
+      likedSongs.some((likedSong) => likedSong?.song?._id === currentSong?._id);
+    setIsCurrentSongLiked(isLiked);
+  }, [currentSong]);
+
   console.log(userinfo);
   console.log(isCurrentSongLiked);
 

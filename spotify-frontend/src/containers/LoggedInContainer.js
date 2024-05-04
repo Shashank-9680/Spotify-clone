@@ -151,6 +151,7 @@ const LoggedInContainer = ({ children, currentActiveScreen, setIsLoading }) => {
   };
 
   const togglePlayPause = () => {
+    console.log("first");
     if (isPaused) {
       playSound();
       setIsPaused(false);
@@ -503,28 +504,31 @@ const LoggedInContainer = ({ children, currentActiveScreen, setIsLoading }) => {
                 fontSize={30}
                 className="cursor-pointer text-gray-500 hover:text-white"
               />
-              <Icon
-                icon="mdi:skip-previous-outline"
-                fontSize={30}
-                className="cursor-pointer text-gray-500 hover:text-white"
-                onClick={handlePrevSong}
-              />
-              <Icon
-                icon={
-                  isPaused
-                    ? "ic:baseline-play-circle"
-                    : "ic:baseline-pause-circle"
-                }
-                fontSize={50}
-                className="cursor-pointer text-gray-500 hover:text-white"
-                onClick={togglePlayPause}
-              />
-              <Icon
-                icon="mdi:skip-next-outline"
-                fontSize={30}
-                className="cursor-pointer text-gray-500 hover:text-white"
-                onClick={handleNextSong}
-              />
+              <div onClick={handlePrevSong}>
+                <Icon
+                  icon="mdi:skip-previous-outline"
+                  fontSize={30}
+                  className="cursor-pointer text-gray-500 hover:text-white"
+                />
+              </div>
+              <div className="" onClick={togglePlayPause}>
+                <Icon
+                  icon={
+                    isPaused
+                      ? "ic:baseline-play-circle"
+                      : "ic:baseline-pause-circle"
+                  }
+                  fontSize={50}
+                  className="cursor-pointer text-gray-500 hover:text-white"
+                />
+              </div>
+              <div onClick={handleNextSong}>
+                <Icon
+                  icon="mdi:skip-next-outline"
+                  fontSize={30}
+                  className="cursor-pointer text-gray-500 hover:text-white"
+                />
+              </div>
               <Icon
                 icon="ic:twotone-repeat"
                 fontSize={30}
@@ -557,21 +561,25 @@ const LoggedInContainer = ({ children, currentActiveScreen, setIsLoading }) => {
             </div> */}
           </div>
           <div className="w-1/4 flex justify-end pr-4 space-x-4 items-center">
-            <Icon
-              icon="ic:round-playlist-add"
-              fontSize={30}
-              className="cursor-pointer text-gray-500 hover:text-white"
+            <div
               onClick={() => {
                 setAddToPlaylistModalOpen(true);
               }}
-            />
-            <Icon
-              icon={"basil:heart-solid"}
-              color={isCurrentSongLiked ? "red" : "gray"}
-              fontSize={25}
-              className="cursor-pointer"
-              onClick={handleLikeSong}
-            />
+            >
+              <Icon
+                icon="ic:round-playlist-add"
+                fontSize={30}
+                className="cursor-pointer text-gray-500 hover:text-white"
+              />
+            </div>
+            <div onClick={handleLikeSong}>
+              <Icon
+                icon={"basil:heart-solid"}
+                color={isCurrentSongLiked ? "red" : "gray"}
+                fontSize={25}
+                className="cursor-pointer"
+              />
+            </div>
           </div>
         </div>
       )}
