@@ -63,7 +63,7 @@ const router1 = createBrowserRouter([
 ]);
 const router2 = createBrowserRouter([
   {
-    path: "/home",
+    path: "/",
     element: <Home></Home>,
   },
   {
@@ -77,7 +77,7 @@ const router2 = createBrowserRouter([
 
   {
     path: "*",
-    element: <Navigate to="/home"></Navigate>,
+    element: <Navigate to="/"></Navigate>,
   },
 ]);
 function App() {
