@@ -74,14 +74,13 @@ const router2 = createBrowserRouter([
     path: "/signup",
     element: <SignUp></SignUp>,
   },
-
   {
     path: "*",
     element: <Navigate to="/"></Navigate>,
   },
 ]);
 function App() {
-  const [cookie, setCookie] = useCookies(["token"]);
+  const [cookie] = useCookies(["token"]);
 
   return (
     <div className="w-screen h-screen font-poppins ">
