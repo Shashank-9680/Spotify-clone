@@ -7,35 +7,40 @@ import TextWithHover from "./shared/Textwithhover";
 import SingleSongCard from "./shared/SingleSongCard";
 import { makeAuthenticatedGETRequest } from "../utils/serviceHelpers";
 import LoggedInContainer from "../containers/LoggedInContainer";
-import songContext from "../contexts/songContext";
+import { useSongContext } from "../contexts/songContext";
 
 const MyMusic = () => {
-  const [songData, setSongData] = useState([]);
-  const { userinfo, setUserInfo } = useContext(songContext);
-  const { color, setColor } = useContext(songContext);
-  useEffect(() => {
-    const getData = async () => {
-      const response = await makeAuthenticatedGETRequest("/song/get/mysongs");
-
-      setSongData(response.data);
-    };
-
-    getData();
-  }, []);
+  const { songData, setSongData, isSongDataLoading } =
+    useContext(useSongContext);
 
   return (
     <LoggedInContainer currentActiveScreen={"mymusic"}>
       <div className="text-white text-xl font-semibold pb-4 pl-2 pt-8">
         {" "}
-        My Songs
+        My Songs{" "}
       </div>
-      <div className="space-y-3 overflow-auto">
-        {songData.map((item) => {
-          return (
-            <SingleSongCard info={item} playSound={() => {}}></SingleSongCard>
-          );
-        })}
-      </div>
+      {isSongDataLoading ? (
+        <div className="flex justify-center items-center h-96">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"></div>
+        </div>
+      ) : songData.length === 0 ? (
+        <div className="text-gray-400 text-lg">
+          No songs made by the artist yet.
+        </div>
+      ) : (
+        <div className="space-y-3 overflow-auto">
+          {songData.map((item) => {
+            return (
+              <SingleSongCard
+                key={item._id}
+                info={item}
+                duration={item.duration}
+                playSound={() => {}}
+              ></SingleSongCard>
+            );
+          })}
+        </div>
+      )}
     </LoggedInContainer>
   );
 };

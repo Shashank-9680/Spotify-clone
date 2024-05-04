@@ -13,18 +13,19 @@ import spotify_logo from "../assets/images/spotify_logo_white.svg";
 import IconText from "../componenets/shared/Icontext";
 import { Icon } from "@iconify/react";
 import TextWithHover from "../componenets/shared/Textwithhover";
-import songContext from "../contexts/songContext";
+import { useSongContext } from "../contexts/songContext";
 import AddToPlaylistModal from "../modals/AddtoPlaylistModal";
 import { makeAuthenticatedPOSTRequest } from "../utils/serviceHelpers";
 import { makeAuthenticatedGETRequest } from "../utils/serviceHelpers";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { RxCross1 } from "react-icons/rx";
-const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
+import MyMusic from "../componenets/MyMusic";
+const LoggedInContainer = ({ children, currentActiveScreen, setIsLoading }) => {
   const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false);
   const [addToPlaylistModalOpen, setAddToPlaylistModalOpen] = useState(false);
-  const { color, setColor } = useContext(songContext);
-  const { userinfo, setUserInfo } = useContext(songContext);
+
+  const { userinfo, setUserInfo } = useContext(useSongContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [cookie, setCookie] = useCookies(["token"]);
   const navigate = useNavigate();
@@ -34,7 +35,24 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
   const [initialSongIndex, setInitialSongIndex] = useState(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [show, setShow] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
   const {
     currentSong,
     setCurrentSong,
@@ -46,9 +64,41 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
     setIsCurrentSongLiked,
     isPaused,
     setIsPaused,
-  } = useContext(songContext);
+    // setIsLikedLoading,
+    // isLikedLoading,
+    songData,
+  } = useContext(useSongContext);
   const firstUpdate = useRef(true);
+  console.log(songData);
+  console.log(isCurrentSongLiked);
+  //liked songs
+  // useEffect(() => {
+  //   const fetchLikedSongs = async () => {
+  //     try {
+  //       setIsLikedLoading(true);
+  //       if (userinfo && userinfo._id) {
+  //         const userId = userinfo._id;
+  //         const response = await fetch(`/likedsongs/liked/${userId}`);
+  //         const data = await response.json();
 
+  //         setLikedSongs(data);
+
+  //         // Check if the current song is liked
+  //         const isLiked = data.some(
+  //           (likedSong) => likedSong?.song?._id === currentSong?._id
+  //         );
+  //         setIsCurrentSongLiked(isLiked);
+  //       }
+  //       setIsLikedLoading(false);
+  //     } catch (error) {
+  //       console.error(error);
+  //       setIsLikedLoading(false);
+  //     }
+  //   };
+
+  //   fetchLikedSongs();
+  // }, [userinfo]);
+  // console.log(soundPlayed);
   useLayoutEffect(() => {
     if (firstUpdate.current) {
       firstUpdate.current = false;
@@ -57,13 +107,21 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
     if (!currentSong) {
       return;
     } else {
-      changeSong(currentSong.track, songData.indexOf(currentSong));
-      setColor(false);
-      setInitialSongIndex(songData.indexOf(currentSong));
+      const currentSongIndex = songData.findIndex(
+        (song) => song.track === currentSong.track
+      );
+
+      if (currentSongIndex !== -1) {
+        changeSong(currentSong.track, currentSongIndex);
+
+        setInitialSongIndex(currentSongIndex);
+        console.log(initialSongIndex);
+      }
     }
   }, [currentSong && currentSong.track]);
 
   const playSound = () => {
+    console.log(soundPlayed);
     if (!soundPlayed) {
       return;
     } else {
@@ -286,14 +344,29 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
       )}
 
       <div className={`${currentSong ? "h-7/8" : "h-full"} w-full flex `}>
+        {/* {window.innerWidth > 768?} */}
         <div
-          className={`h-full ${
-            show ? "w-1/3" : "hidden"
-          }  md:w-1/6 bg-black md:flex md:flex-col justify-between  overflow-hidden`}
+          className={
+            windowWidth > 768
+              ? "h-full w-[15rem] bg-black flex flex-col justify-between pb-10"
+              : `h-full bg-black overflow-hidden fixed inset-y-0 left-0 z-50 w-[15rem] transition-transform duration-300 transform ${
+                  sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                }`
+          }
         >
           <div>
+            <div className="flex justify-end p-4 cursor-pointer">
+              {windowWidth < 768 ? (
+                sidebarOpen ? (
+                  <RxCross2 onClick={toggleSidebar} color="white " />
+                ) : null
+              ) : null}
+            </div>
             <div className="logoDiv p-6">
-              <img src={spotify_logo} alt="spotify logo" width={125} />
+              <Link to="/">
+                {" "}
+                <img src={spotify_logo} alt="spotify logo" width={125} />
+              </Link>
             </div>
 
             <div className="py-5">
@@ -347,22 +420,26 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
         </div>
 
         <div
-          className={`h-full w-full ${
-            show ? "w-2/3" : ""
-          } md:w-5/6 bg-app-black overflow-auto`}
+          className={
+            windowWidth > 768
+              ? "h-full w-5/6 bg-app-black overflow-auto"
+              : `h-full w-full bg-app-black overflow-auto  ${
+                  sidebarOpen ? "ml-1/3 md:ml-1/6" : ""
+                }`
+          }
         >
           <div className="navbar w-full  bg-black bg-opacity-30 flex items-center p-4">
             <div className="w-full flex justify-between items-center">
               <div className="flex gap-2">
                 <div
-                  onClick={() => setShow((prev) => !prev)}
-                  className="flex justify-center items-center md:hidden cursor-pointer"
+                  onClick={toggleSidebar}
+                  className="flex justify-center items-center cursor-pointer"
                 >
-                  {show ? (
-                    <RxCross2 color="white" />
-                  ) : (
-                    <RxHamburgerMenu color="white" />
-                  )}
+                  {windowWidth < 768 ? (
+                    sidebarOpen ? null : (
+                      <RxHamburgerMenu onClick={toggleSidebar} color="white" />
+                    )
+                  ) : null}
                 </div>
                 <TextWithHover
                   displayText={"All Playlist"}
@@ -400,26 +477,26 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
         </div>
       </div>
       {currentSong && (
-        <div className="w-full h-1/8 bg-black  bg-opacity-30 text-white flex overflow-x-hidden">
-          <div className="w-1/4 flex items-center ">
+        <div className="w-full h-1/8 bg-black  bg-opacity-30 static text-white flex overflow-x-hidden">
+          <div className="w-1/4 flex items-center">
             <img
               src={currentSong.thumbnail}
               alt="currentSongThumbnail"
-              className="h-14 w-14 rounded"
+              className="h-14 w-14 rounded ml-4"
             />
             <div className="pl-4">
               {" "}
-              <div className="text-sm hover:underline cursor-pointer">
+              <div className="text-[0.5rem] sm:text-sm hover:underline cursor-pointer ">
                 {currentSong.name}
               </div>
-              <div className="text-xs text-gray-500 hover:underline cursor-pointer">
+              <div className=" text-[0.5rem] sm:text-xs text-gray-500 hover:underline cursor-pointer">
                 {currentSong.artist.firstName +
                   " " +
                   currentSong.artist.lastName}
               </div>
             </div>
           </div>
-          <div className="w-1/2 flex justify-center h-full flex-col items-center py-1">
+          <div className="w-1/2 flex justify-center h-full flex-col items-center">
             <div className="flex w-1/3 justify-between items-center">
               <Icon
                 icon="ph:shuffle-fill"
@@ -454,7 +531,7 @@ const LoggedInContainer = ({ children, currentActiveScreen, songData }) => {
                 className="cursor-pointer text-gray-500 hover:text-white"
               />
             </div>
-            <div className="w-1/3 flex justify-center ">
+            <div className="w-1/3 flex justify-center pb-2 ">
               <input
                 type="range"
                 min="0"

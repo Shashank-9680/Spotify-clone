@@ -115,24 +115,9 @@ const Home = () => {
 
       <div className="h-full w-full md:w-4/5 bg-app-black overflow-auto">
         <div className="navbar w-full h-1/10 bg-black bg-opacity-30 flex items-center justify-end">
-          <div className="w-full justify-center lg:w-1/2 flex h-full">
-            <div className="w-3/5 flex justify-around items-center">
-              <TextWithHover displayText={"Premium"} />
-              <TextWithHover displayText={"Support"} />
-              <TextWithHover displayText={"Download"} />
-              <div className="h-1/2 border-r border-white"></div>
-            </div>
-            <div className="w-2/5 flex justify-around h-full items-center">
-              <div
-                className="
-                  text-gray-500
-                 font-semibold hover:text-white"
-              >
-                <Link to="/signup">Sign Up</Link>
-              </div>
-              <div className="bg-white h-2/3 px-8 flex items-center justify-center rounded-full font-semibold cursor-pointer">
-                <Link to="/login">Log In</Link>
-              </div>
+          <div className="w-full justify-end items-center mr-4 lg:w-1/2 flex h-full">
+            <div className="bg-white h-2/3 px-8 flex items-center justify-center rounded-full font-semibold cursor-pointer">
+              <Link to="/login">Log In</Link>
             </div>
           </div>
         </div>

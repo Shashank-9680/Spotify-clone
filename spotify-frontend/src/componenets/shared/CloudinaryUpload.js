@@ -25,7 +25,7 @@ const CloudinaryUpload = ({ setUrl, setName }) => {
 
   return (
     <button
-      className="bg-white text-black  rounded-full p-4 font-semibold"
+      className="bg-white text-black sm:rounded-full p-3 font-semibold"
       onClick={uploadImageWidget}
     >
       Select Track

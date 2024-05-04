@@ -12,7 +12,7 @@ import { Cookies, useCookies } from "react-cookie";
 import LoggedInHome from "./componenets/LoggedInHome";
 import UploadSong from "./componenets/UploadSong";
 import MyMusic from "./componenets/MyMusic";
-import songContext from "./contexts/songContext";
+import songContext, { SongProvider } from "./contexts/songContext";
 import Search from "./componenets/Search";
 import Library from "./componenets/Library";
 import SinglePlaylistView from "./componenets/SinglePlaylistView";
@@ -82,39 +82,13 @@ const router2 = createBrowserRouter([
 ]);
 function App() {
   const [cookie, setCookie] = useCookies(["token"]);
-  const [soundPlayed, setSoundPlayed] = useState(null);
-  const [isPaused, setIsPaused] = useState(true);
-  const [currentSong, setCurrentSong] = useState(null);
-  const [color, setColor] = useState(false);
-  const [userinfo, setUserInfo] = useState(null);
-  const [isCurrentSongLiked, setIsCurrentSongLiked] = useState(false);
-  const [likedSongs, setLikedSongs] = useState([]);
-  // const [progress, setProgress] = useState(0);
+
   return (
     <div className="w-screen h-screen font-poppins ">
       {cookie.token ? (
-        <songContext.Provider
-          value={{
-            currentSong,
-            setLikedSongs,
-            likedSongs,
-            // progress,
-            // setProgress,
-            setCurrentSong,
-            soundPlayed,
-            setSoundPlayed,
-            isPaused,
-            isCurrentSongLiked,
-            setIsCurrentSongLiked,
-            setIsPaused,
-            color,
-            setColor,
-            userinfo,
-            setUserInfo,
-          }}
-        >
+        <SongProvider>
           <RouterProvider router={router1} />
-        </songContext.Provider>
+        </SongProvider>
       ) : (
         <RouterProvider router={router2} />
       )}
