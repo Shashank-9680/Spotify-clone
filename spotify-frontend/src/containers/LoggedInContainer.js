@@ -251,12 +251,14 @@ const LoggedInContainer = ({ children, currentActiveScreen, setIsLoading }) => {
 
     getData();
   }, []);
-
+  console.log(currentSong?.artist._id);
   const handleLikeSong = async () => {
     try {
-      const userId = userinfo._id; // Replace with the actual user ID
+      const userId = currentSong?.artist._id;
+      console.log(userinfo);
+      const currentuserInfo = userinfo;
       const songId = currentSong._id;
-      const payload = { userId, songId };
+      const payload = { userId, songId, currentuserInfo };
 
       if (isCurrentSongLiked) {
         // Unlike the song

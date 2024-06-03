@@ -35,7 +35,7 @@ const Login = () => {
       <div className="logo py-5 border-b border-solid border-gray-300 w-full flex justify-center">
         <Icon icon="logos:spotify" width={150} />
       </div>
-      <div className=" sm:w-1/3 py-10 sm:flex sm:flex-col sm:items-center sm:justify-center  px-4 sm:px-0">
+      <div className="sm:w-1/3 py-10 sm:flex sm:flex-col sm:items-center sm:justify-center px-4 sm:px-0">
         <div className="font-bold mb-2">To continue,log in to Spotify</div>
         <TextInput
           label="Email address or username"
